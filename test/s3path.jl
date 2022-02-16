@@ -481,7 +481,7 @@ function s3path_tests(config)
             S3Path(("prefix", "path"), "/", "s3://my_bucket", true, ver, cfg)
 
         @test S3Path("s3://my_bucket/prefix/path?versionId=null") ==
-            S3Path(("prefix", "path"), "/", "s3://my_bucket", true, "null", cfg)
+            S3Path(("prefix", "path"), "/", "s3://my_bucket", false, "null", cfg)
 
         # Test to mark inconsistent root string behaviour when reconstructing parsed paths.
         parsed = tryparse(S3Path, "s3://my_bucket")
@@ -565,7 +565,7 @@ function s3path_tests(config)
             k = "object"
 
             function versioning_enabled(config, bucket)
-                d = s3("GET", "/$(bucket)?versioning"; aws_config=config)
+                d = parse(S3.get_bucket_versioning(bucket; aws_config=config))
                 return get(d, "Status", "Disabled") == "Enabled"
             end
 
@@ -600,7 +600,7 @@ function s3path_tests(config)
                 @test read(S3Path(b, k; config=config, version=versions[2])) ==
                     b"new and improved!"
             finally
-                AWSS3.s3_nuke_bucket(config, alt_bucket_name)
+                AWSS3.s3_nuke_bucket(config, b)
             end
         end
     end
