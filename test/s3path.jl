@@ -565,7 +565,7 @@ function s3path_tests(config)
             k = "object"
 
             function versioning_enabled(config, bucket)
-                d = s3("GET", "/$b?versioning"; aws_config=config)
+                d = s3("GET", "/$(bucket)?versioning"; aws_config=config)
                 return get(d, "Status", "Disabled") == "Enabled"
             end
 
@@ -576,7 +576,7 @@ function s3path_tests(config)
             try
                 # Create a new bucket that we know does not have versioning enabled
                 s3_create_bucket(config, b)
-                @test versioning_enabled(config, b)
+                @test !versioning_enabled(config, b)
 
                 # Create an object which will have versionId set to "null"
                 s3_put(config, b, k, "original")
@@ -587,7 +587,7 @@ function s3path_tests(config)
                 @test read(S3Path(b, k; config=config, version=versions[1])) == b"original"
 
                 s3_enable_versioning(config, b)
-                @test !versioning_enabled(config, b)
+                @test versioning_enabled(config, b)
 
                 # Overwrite the original object with a new version
                 s3_put(config, b, k, "new and improved!")
@@ -600,7 +600,7 @@ function s3path_tests(config)
                 @test read(S3Path(b, k; config=config, version=versions[2])) ==
                     b"new and improved!"
             finally
-                 AWSS3.s3_nuke_bucket(config, alt_bucket_name)
+                AWSS3.s3_nuke_bucket(config, alt_bucket_name)
             end
         end
     end
