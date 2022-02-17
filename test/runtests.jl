@@ -12,7 +12,7 @@ using FilePathsBase.TestPaths
 using UUIDs: uuid4
 using JSON3
 
-@service S3 use_response_type=true
+@service S3 use_response_type = true
 
 is_aws(config) = config isa AWSConfig
 
